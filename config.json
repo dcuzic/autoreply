@@ -1,0 +1,10 @@
+{
+    "busy_intervals": [
+        {"from":"09:00", "to":"13:00"}
+    ],
+    "report_time":"21:00",
+    "whitelist":[
+        "user1", "user2", "user3"
+    ],
+    "admin":"dima"
+}
