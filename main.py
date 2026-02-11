@@ -16,21 +16,26 @@ def read_config():
 
 data = read_config()
 
-busy_from = data[]
+
 
 # print(data)
+
+
 
 # add a request for the user (do they want to change the intervals?)
 
 
-
 def change_intervals():
+    return
 
 
 # busy intervals
 
-busy_from = data(read_config['from'])
-busy_to = data["to"]
+busy_from = data["busy_intervals"][0]["from"]
+busy_to = data["busy_intervals"][0]["to"]
+
+print(busy_from)
+print(busy_to)
 
 def is_busy(data):
     for interval in data["busy_intervals"]:
@@ -39,4 +44,3 @@ def is_busy(data):
     return busy_from, busy_to
 
 print(is_busy(busy_from, busy_to))
-
