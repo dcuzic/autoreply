@@ -16,11 +16,15 @@ def read_config():
 
 data = read_config()
 
+busy_from = data[]
+
 # print(data)
 
 # add a request for the user (do they want to change the intervals?)
 
 
+
+def change_intervals():
 
 
 # busy intervals
