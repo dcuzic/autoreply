@@ -1,46 +1,33 @@
 import datetime
 from pathlib import Path
-import json
+import sqlite3
+from database import db_conn, create_table_busy_intervals
 
-# БЛОК А 
+# BLOCK A
 
-# reading config.json
-def get_config_path():
-    return Path(__file__).resolve().parent / "config.json"
+create_table_busy_intervals()
 
-def read_config():
-    config_path = get_config_path()
-    with open(config_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-    return data
+# wip
+def check_busy_intervals():
+    conn = db_conn()
+    cursor = conn.cursor()
 
-data = read_config()
+    cursor.execute("SELECT busy_from, busy_to FROM busy_intervals")
+    current_intervals = cursor.fetchall()
 
+    busy_from = cursor.execute("SELECT")
+    busy_to = input("Until what time are you busy? (xx:xx)")
 
+    print(f"Here are ")
 
-# print(data)
+    if not current_intervals:
+        busy_from = input("From what time are you busy? (xx:xx)")
+        busy_to = input("Until what time are you busy? (xx:xx)")
 
+        cursor.execute("INSERT INTO busy_intervals (busy_from, busy_to) VALUES (?, ?)", (busy_from, busy_to))
 
+        conn.commit()
+        
+        return f"Your busy interval has been set to from {busy_from} until {busy_to}"
 
-# add a request for the user (do they want to change the intervals?)
-
-
-def change_intervals():
-    return
-
-
-# busy intervals
-
-busy_from = data["busy_intervals"][0]["from"]
-busy_to = data["busy_intervals"][0]["to"]
-
-print(busy_from)
-print(busy_to)
-
-def is_busy(data):
-    for interval in data["busy_intervals"]:
-        busy_from = interval["from"]
-        busy_to = interval["to"]
-    return busy_from, busy_to
-
-print(is_busy(busy_from, busy_to))
+check_busy_intervals()
