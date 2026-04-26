@@ -14,10 +14,30 @@ def create_table_busy_intervals():
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     busy_from TEXT,
                     busy_to TEXT,
-                    report_time TEXT,
-                    whitelist TEXT
                    )""")
     
     conn.commit()
     conn.close()
 
+def create_table_whitelist():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS whitelist (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   username TEXT
+                   )""")
+    
+    conn.commit()
+    conn.close()
+
+def create_table_report_time():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS report_time (
+                   report_time TEXT
+                   )""")
+    
+    conn.commit()
+    conn.close()
