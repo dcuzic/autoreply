@@ -13,7 +13,7 @@ def create_table_busy_intervals():
     cursor.execute("""CREATE TABLE IF NOT EXISTS busy_intervals (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     busy_from TEXT,
-                    busy_to TEXT,
+                    busy_to TEXT
                    )""")
     
     conn.commit()

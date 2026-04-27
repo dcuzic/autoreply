@@ -24,7 +24,7 @@ def change_busy_intervals(busy_from, busy_to):
 
 
 # wip
-def check_busy_intervals():
+def set_busy_intervals():
     conn = db_conn()
     cursor = conn.cursor()
 
@@ -38,8 +38,6 @@ def check_busy_intervals():
         cursor.execute("INSERT INTO busy_intervals (busy_from, busy_to) VALUES (?, ?)", (busy_from, busy_to))
         conn.commit()
 
-
-        
         print(f"your busy intervals have been set to {busy_from} to {busy_to}")
         return busy_from, busy_to
     
@@ -52,14 +50,71 @@ def check_busy_intervals():
             busy_from = input("From what time are you busy? (xx:xx)")
             busy_to = input("Until what time are you busy? (xx:xx)")
 
-            change_busy_intervals(busy_to, busy_from)
+            change_busy_intervals(busy_from, busy_to)
 
         cursor.execute("SELECT * FROM busy_intervals")
         result = cursor.fetchall()
+
         for row in result:
             print(f"your current busy intervals {dict(row)}")
 
         return row
-        
 
-check_busy_intervals()
+def set_whitelist():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username FROM whitelist")
+    current_whitelist = cursor.fetchall()
+
+    if not current_whitelist:
+        whitelist = []
+
+        while True:
+            user = input("Enter username (Press enter to stop):")
+
+            if user == "":
+                break
+
+            whitelist.append(user)
+        
+        for item in whitelist:
+            cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+
+        conn.commit()
+
+    else:
+        for row in current_whitelist:
+            print(dict(row))
+        change_current_whitelist = input("Would you like to change current whitelist?(y for yes, n for no)")
+
+        if change_current_whitelist == "y":
+            whitelist = []
+
+            cursor.execute("DELETE FROM whitelist")
+
+            while True:
+                user = input("Enter username (Press enter to stop):")
+
+                if user == "":
+                    break
+
+                whitelist.append(user)
+        
+            for item in whitelist:
+                cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+            
+            conn.commit()
+
+        cursor.execute("SELECT * FROM whitelist")
+        result = cursor.fetchall()
+        print("Users currently in whitelist:")
+        for u in result:
+            print(dict(u))
+        return
+
+def set_report_time():
+    return
+
+set_whitelist()
+
