@@ -84,6 +84,7 @@ def set_whitelist():
         conn.commit()
 
     else:
+        print("Your current whitelist:")
         for row in current_whitelist:
             print(dict(row))
         change_current_whitelist = input("Would you like to change current whitelist?(y for yes, n for no)")
@@ -114,7 +115,43 @@ def set_whitelist():
         return
 
 def set_report_time():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM report_time")
+    current_report_time = cursor.fetchone()
+
+    if not current_report_time:
+        time = input("Choose report time (xx:xx)")
+
+        cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
+
+        conn.commit()
+        conn.close()
+
+        print(f"Report time has been set to {time}")
+        return 
+
+    else:
+        print(f"Your current report time is {current_report_time[0]}")
+        change_report_time = input("Do you want to change it? (y for yes, n for no)")
+
+        if change_report_time == "y":
+            cursor.execute("DELETE FROM report_time")
+
+            time = input("Choose report time (xx:xx)")
+
+            cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
+            conn.commit()
+
+            cursor.execute("SELECT * FROM report_time")
+            result = cursor.fetchone()
+
+            print(f"Your current report time has been set to {result[0]}")
+
     return
 
+set_busy_intervals()
 set_whitelist()
+set_report_time()
 

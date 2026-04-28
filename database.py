@@ -36,7 +36,7 @@ def create_table_report_time():
     cursor = conn.cursor()
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS report_time (
-                   report_time TEXT
+                   time TEXT
                    )""")
     
     conn.commit()
