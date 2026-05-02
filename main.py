@@ -1,0 +1,192 @@
+import datetime
+from pathlib import Path
+import sqlite3
+from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time, create_table_message
+
+# BLOCK A
+
+# creating tables
+create_table_busy_intervals()
+create_table_whitelist()
+create_table_report_time()
+create_table_message()
+
+def change_busy_intervals(busy_from, busy_to):
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE busy_intervals SET busy_from = ?, busy_to = ? WHERE id = 1", (busy_from, busy_to))
+
+    conn.commit()
+        
+    print(f"your busy intervals have been set to {busy_from} to {busy_to}")
+
+    return busy_from, busy_to
+
+# wip
+def set_busy_intervals():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT busy_from, busy_to FROM busy_intervals")
+    current_intervals = cursor.fetchall()
+
+    if not current_intervals:
+        busy_from = input("From what time are you busy? (xx:xx)")
+        busy_to = input("Until what time are you busy? (xx:xx)")
+
+        cursor.execute("INSERT INTO busy_intervals (busy_from, busy_to) VALUES (?, ?)", (busy_from, busy_to))
+        conn.commit()
+
+        print(f"your busy intervals have been set to {busy_from} to {busy_to}")
+        return busy_from, busy_to
+    
+    else:
+        for row in current_intervals:
+            print(dict(row))
+        change_current_intervals = input("Would you like to change current intervals?(y for yes, n for no)")
+
+        if change_current_intervals == "y":
+            busy_from = input("From what time are you busy? (xx:xx)")
+            busy_to = input("Until what time are you busy? (xx:xx)")
+
+            change_busy_intervals(busy_from, busy_to)
+
+        cursor.execute("SELECT * FROM busy_intervals")
+        result = cursor.fetchall()
+
+        for row in result:
+            print(f"your current busy intervals {dict(row)}")
+
+        return row
+
+def set_whitelist():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username FROM whitelist")
+    current_whitelist = cursor.fetchall()
+
+    if not current_whitelist:
+        whitelist = []
+
+        while True:
+            user = input("Enter username (Press enter to stop):")
+
+            if user == "":
+                break
+
+            whitelist.append(user)
+        
+        for item in whitelist:
+            cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+
+        conn.commit()
+
+    else:
+        print("Your current whitelist:")
+        for row in current_whitelist:
+            print(dict(row))
+        change_current_whitelist = input("Would you like to change current whitelist?(y for yes, n for no)")
+
+        if change_current_whitelist == "y":
+            whitelist = []
+
+            cursor.execute("DELETE FROM whitelist")
+
+            while True:
+                user = input("Enter username (Press enter to stop):")
+
+                if user == "":
+                    break
+
+                whitelist.append(user)
+        
+            for item in whitelist:
+                cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+            
+            conn.commit()
+
+        cursor.execute("SELECT * FROM whitelist")
+        result = cursor.fetchall()
+        print("Users currently in whitelist:")
+        for u in result:
+            print(dict(u))
+        return
+
+def set_report_time():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM report_time")
+    current_report_time = cursor.fetchone()
+
+    if not current_report_time:
+        time = input("Choose report time (xx:xx)")
+
+        cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
+
+        conn.commit()
+        conn.close()
+
+        print(f"Report time has been set to {time}")
+        return 
+
+    else:
+        print(f"Your current report time is {current_report_time[0]}")
+        change_report_time = input("Do you want to change it? (y for yes, n for no)")
+
+        if change_report_time == "y":
+            cursor.execute("DELETE FROM report_time")
+
+            time = input("Choose report time (xx:xx)")
+
+            cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
+            conn.commit()
+
+            cursor.execute("SELECT * FROM report_time")
+            result = cursor.fetchone()
+
+            print(f"Your current report time has been set to {result[0]}")
+
+    return
+
+def set_message():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM messages")
+    current_message = cursor.fetchone()
+
+    if not current_message:
+        response = input("Response to incoming messages:")
+
+        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response,))
+
+        conn.commit()
+        conn.close()
+
+        print(f"Your current message has been set to {response}")
+        return 
+    else:
+        print(f'Your current message is "{current_message[0]}"')
+        change_message = input("Do you want to change it? (y for yes, n for no)")
+
+        if change_message == "y":
+            cursor.execute("DELETE FROM messages")
+
+            message = input("Enter new response: ")
+
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (message,))
+            conn.commit()
+
+            cursor.execute("SELECT * FROM messages")
+            result = cursor.fetchone()
+
+            print(f'Your current message has been set to "{result[0]}"')
+
+set_busy_intervals()
+set_whitelist()
+set_report_time()
+set_message()
+
