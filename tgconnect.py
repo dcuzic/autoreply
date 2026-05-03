@@ -1,23 +1,24 @@
 import os
 from dotenv import load_dotenv
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 
 load_dotenv()
 
-async def client_start():
-    api_id = int(os.getenv("API_ID"))
-    api_hash = os.getenv("API_HASH")
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
 
-    client = TelegramClient("session", api_id, api_hash)
+client = TelegramClient("session", api_id, api_hash)
 
+async def main():
     client.start()
     print("Client started")
+
     me = await client.get_me()
-    print(f"Username: {me.username}, ID: {me.id}")
+    print(f"Username:{me.username}, ID: {me.id}")
 
-    with client:
-        client.loop.run_until_complete(test_connection())
+with client:
+    client.loop.run_until_complete(main())
 
-await client_start()
-
-
+@client.on(events.NewMessage)
+async def message(event):
+    await event.
