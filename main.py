@@ -1,7 +1,7 @@
 import datetime
 from pathlib import Path
 import sqlite3
-from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time
+from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time, create_table_message
 
 # BLOCK A
 
@@ -9,6 +9,7 @@ from database import db_conn, create_table_busy_intervals, create_table_whitelis
 create_table_busy_intervals()
 create_table_whitelist()
 create_table_report_time()
+create_table_message()
 
 def change_busy_intervals(busy_from, busy_to):
     conn = db_conn()
@@ -21,7 +22,6 @@ def change_busy_intervals(busy_from, busy_to):
     print(f"your busy intervals have been set to {busy_from} to {busy_to}")
 
     return busy_from, busy_to
-
 
 # wip
 def set_busy_intervals():
@@ -151,7 +151,44 @@ def set_report_time():
 
     return
 
+def set_message():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM messages")
+    current_message = cursor.fetchone()
+
+    if not current_message:
+        response = input("Response to incoming messages:")
+
+        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response,))
+
+        conn.commit()
+        conn.close()
+
+        print(f"Your current message has been set to {response}")
+        return 
+    else:
+        print(f'Your current message is "{current_message[0]}"')
+        change_message = input("Do you want to change it? (y for yes, n for no)")
+
+        if change_message == "y":
+            cursor.execute("DELETE FROM messages")
+
+            message = input("Enter new response: ")
+
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (message,))
+            conn.commit()
+
+            cursor.execute("SELECT * FROM messages")
+            result = cursor.fetchone()
+
+            print(f'Your current message has been set to "{result[0]}"')
+
 set_busy_intervals()
 set_whitelist()
 set_report_time()
+set_message()
+
+
 
