@@ -40,8 +40,6 @@ def create_table_report_time():
                    )""")
     
     conn.commit()
-<<<<<<< HEAD
-=======
     conn.close()
 
 def create_table_message():
@@ -54,5 +52,17 @@ def create_table_message():
                    )""")
     
     conn.commit()
->>>>>>> ccd72cbb4b01951b5c7f8276c305b2eae9a8269e
+    conn.close()
+
+def create_table_incoming():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute(""" 
+                   CREATE TABLE IF NOT EXISTS incoming (
+                   incoming_message TEXT,
+                   sender TEXT 
+                   )""")
+    
+    conn.commit()
     conn.close()
