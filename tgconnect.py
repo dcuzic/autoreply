@@ -1,8 +1,10 @@
 import os
+import asyncio
+import datetime
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
-import asyncio
 from database import db_conn
+
 
 load_dotenv()
 
@@ -11,11 +13,11 @@ api_hash = os.getenv("API_HASH")
 
 client = TelegramClient("session", api_id, api_hash)
 
-async def send_db(incoming, sender):
+async def send_db(date, incoming, sender, sender_id):
     conn = db_conn()
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO incoming (incoming, sender) VALUES (?, ?)", (incoming, sender))
+    cursor.execute("INSERT INTO incoming (date, incoming_message, sender, sender_id) VALUES (?, ?, ?, ?)", (date, incoming, sender, sender_id))
 
     conn.commit()
     conn.close()
@@ -23,18 +25,49 @@ async def send_db(incoming, sender):
 
 @client.on(events.NewMessage)
 async def handler(event):
-
-
-    if event.voice:
-        incoming = "🎤 Voice message"
-
+    
     sender = await event.get_sender()
     id = sender.id
+
+    recieved_at = event.date
+    format_code = "%d/%m/%Y %H:%M"
+
+    parsed_date = recieved_at.strftime(format_code)
+
+    if event.raw_text:
+        incoming = event.raw_text
+
+    elif event.voice:
+        incoming = "🎤 Voice message"
+
+    elif event.video_note:
+        incoming = "📸 Video message"
+
+    elif event.video:
+        incoming = "📸 Video"
+        
+    elif event.photo:
+        incoming = "🖼️ Photo"
+
+    elif event.geo:
+        incoming = "📌 Location"
+
+    elif event.sticker:
+        incoming = "Sticker"
     
+    elif event.document:
+        incoming = f"📄 {event.file.name}"
+
+    else:
+        incoming = "Unsupported or Empty message"
+    print(parsed_date)
     print(sender.first_name, sender.last_name + ":", incoming)
-    print(sender.username)
-    print("ID:", sender.id)
     print("Recording to the database...")
+    sender_full_name = sender.first_name + " " + sender.last_name
+
+    await send_db(parsed_date, incoming, sender_full_name, id)
+
+    print("Recorded.")
     
 
 async def main():

@@ -60,8 +60,10 @@ def create_table_incoming():
 
     cursor.execute(""" 
                    CREATE TABLE IF NOT EXISTS incoming (
+                   date TEXT,
                    incoming_message TEXT,
-                   sender TEXT 
+                   sender TEXT,
+                   sender_id INTEGER
                    )""")
     
     conn.commit()

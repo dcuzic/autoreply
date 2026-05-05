@@ -1,7 +1,7 @@
 import datetime
 from pathlib import Path
 import sqlite3
-from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time, create_table_message
+from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time, create_table_message, create_table_incoming
 
 # BLOCK A
 
@@ -10,6 +10,7 @@ create_table_busy_intervals()
 create_table_whitelist()
 create_table_report_time()
 create_table_message()
+create_table_incoming()
 
 def change_busy_intervals(busy_from, busy_to):
     conn = db_conn()
