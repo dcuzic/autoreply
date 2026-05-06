@@ -1,6 +1,7 @@
 import os
 import asyncio
 import datetime
+import random
 from telethon import TelegramClient, events
 from pynput import keyboard
 from dotenv import load_dotenv
@@ -36,9 +37,20 @@ async def response():
     conn = db_conn()
     cursor = conn.cursor()
 
+    cursor.execute("SELECT * FROM messages WHERE message_id = 1")
+    response1 = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM messages WHERE message_id = 2")
+    response2 = cursor.fetchone()    
+
+    cursor.execute("SELECT * FROM messages WHERE message_id = 3")
+    response3 = cursor.fetchone()
+
+    responses_list = [response1, response2, response3]
     
+    response_choice = random.choice(responses_list)
 
-
+    return [response_choice["message"]]
 
 @client.on(events.NewMessage)
 async def handler(event):
