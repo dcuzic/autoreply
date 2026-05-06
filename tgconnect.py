@@ -80,12 +80,13 @@ async def handler(event):
 
     print("Recorded.")
     
-async def stop_listener(client, loop):
+def stop_listener(client, loop):
     def on_press(key):
         try:
             if key.char == "q":
                 print("Exiting...")
-                loop.call_soon_threadsafe(lambda: asyncio.create_task(client.disconnect()))
+                loop.call_soon_threadsafe(lambda: client.disconnect())
+                listener.stop()
                 return False
         except AttributeError:
             pass
@@ -108,7 +109,7 @@ async def main():
     print("Client running ...")
 
     print('Press "q" to exit')
-    await asyncio.create_task(stop_listener(client, loop))
+    stop_listener(client, loop)
 
     await client.run_until_disconnected()
 
