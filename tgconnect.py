@@ -22,6 +22,15 @@ async def send_db(date, incoming, sender, sender_id):
     conn.commit()
     conn.close()
 
+async def clear_previous_incoming():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM incoming")
+
+    conn.commit()
+    conn.close()
+
 
 @client.on(events.NewMessage)
 async def handler(event):
@@ -60,6 +69,7 @@ async def handler(event):
 
     else:
         incoming = "Unsupported or Empty message"
+
     print(parsed_date)
     print(sender.first_name, sender.last_name + ":", incoming)
     print("Recording to the database...")
@@ -73,6 +83,10 @@ async def handler(event):
 async def main():
     await client.start()
     print("Client started")
+
+    print("Clearing previous data...")
+    await clear_previous_incoming()
+    print("Cleared")
 
     me = await client.get_me()
     print(f"Username:{me.username}, ID: {me.id}")
