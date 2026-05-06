@@ -156,35 +156,57 @@ def set_message():
     conn = db_conn()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM messages")
-    current_message = cursor.fetchone()
+    cursor.execute("SELECT message FROM messages")
+    current_responses = cursor.fetchall()
 
-    if not current_message:
-        response = input("Response to incoming messages:")
+    if not current_responses:
+        print("Enter 3 responses to the incoming messages")
 
-        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response,))
+        response1 = input("Response 1:")
+        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response1,))
 
+        response2 = input("Response 2:")
+        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response2,))
+
+        response3 = input("Response 3:")
+        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response3,))
+    
         conn.commit()
         conn.close()
 
-        print(f"Your current message has been set to {response}")
+        print(f"Your current responses have been set to \n{response1} \n{response2} \n{response3}")
         return 
     else:
-        print(f'Your current message is "{current_message[0]}"')
+        print('Your current responses are:')
+        for item in current_responses:
+            print(dict(item))
+
         change_message = input("Do you want to change it? (y for yes, n for no)")
 
         if change_message == "y":
             cursor.execute("DELETE FROM messages")
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'messages'")
 
-            message = input("Enter new response: ")
+            print("Enter 3 responses to the incoming messages")
 
-            cursor.execute("INSERT INTO messages (message) VALUES (?)", (message,))
+            response1 = input("Response 1:")
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response1,))
+
+            response2 = input("Response 2:")
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response2,))
+
+            response3 = input("Response 3:")
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response3,))
+
             conn.commit()
 
-            cursor.execute("SELECT * FROM messages")
-            result = cursor.fetchone()
+            cursor.execute("SELECT message FROM messages")
+            result = cursor.fetchall()
 
-            print(f'Your current message has been set to "{result[0]}"')
+            print("Your current responses have been set to:")
+            for item in result:
+                print(dict(item))
+            return
 
 set_busy_intervals()
 set_whitelist()
