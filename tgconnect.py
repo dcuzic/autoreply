@@ -1,8 +1,9 @@
 import os
 import asyncio
 import datetime
-from dotenv import load_dotenv
 from telethon import TelegramClient, events
+from pynput import keyboard
+from dotenv import load_dotenv
 from database import db_conn
 
 
@@ -79,9 +80,22 @@ async def handler(event):
 
     print("Recorded.")
     
+async def stop_listener(client, loop):
+    def on_press(key):
+        try:
+            if key.char == "q":
+                print("Exiting...")
+                loop.call_soon_threadsafe(lambda: asyncio.create_task(client.disconnect()))
+                return False
+        except AttributeError:
+            pass
+        
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
 
 async def main():
     await client.start()
+    loop = asyncio.get_running_loop()
     print("Client started")
 
     print("Clearing previous data...")
@@ -93,10 +107,9 @@ async def main():
 
     print("Client running ...")
 
+    print('Press "q" to exit')
+    await asyncio.create_task(stop_listener(client, loop))
+
     await client.run_until_disconnected()
 
-
 asyncio.run(main())
-
-
-
