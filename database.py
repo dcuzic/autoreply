@@ -42,12 +42,13 @@ def create_table_report_time():
     conn.commit()
     conn.close()
 
-def create_table_message():
+def create_table_messages():
     conn = db_conn()
     cursor = conn.cursor()
 
     cursor.execute(""" 
                    CREATE TABLE IF NOT EXISTS messages (
+                   message_id INTEGER PRIMARY KEY AUTOINCREMENT,
                    message TEXT
                    )""")
     

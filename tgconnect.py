@@ -32,6 +32,13 @@ async def clear_previous_incoming():
     conn.commit()
     conn.close()
 
+async def response():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    
+
+
 
 @client.on(events.NewMessage)
 async def handler(event):
@@ -81,9 +88,11 @@ async def handler(event):
     print("Recorded.")
     
 def stop_listener(client, loop):
+
     def on_press(key):
+
         try:
-            if key.char == "q":
+            if key.char == "`":
                 print("Exiting...")
                 loop.call_soon_threadsafe(lambda: client.disconnect())
                 listener.stop()
@@ -108,7 +117,7 @@ async def main():
 
     print("Client running ...")
 
-    print('Press "q" to exit')
+    print('Press "`" to exit')
     stop_listener(client, loop)
 
     await client.run_until_disconnected()
