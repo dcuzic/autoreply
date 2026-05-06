@@ -52,6 +52,15 @@ async def response():
 
     return [response_choice["message"]]
 
+async def replied_today():
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT sender_id FROM incoming")
+    already_replied_id_list = cursor.fetchone()
+    print(already_replied_id_list)
+
+
 @client.on(events.NewMessage)
 async def handler(event):
     
@@ -98,6 +107,15 @@ async def handler(event):
     await send_db(parsed_date, incoming, sender_full_name, id)
 
     print("Recorded.")
+
+    print("Replying...")
+
+    response_result = await response()
+    await event.reply(response_result)
+
+    print(f"Replied with: {response_result}")
+
+
     
 def stop_listener(client, loop):
 
