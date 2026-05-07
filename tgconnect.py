@@ -64,7 +64,26 @@ def replied_today(id):
         return True
     else:
         return False
+    
+def names():
+    conn = db_conn()
+    cursor = conn.cursor()
 
+    names_list = []
+
+    cursor.execute("SELECT name FROM whitelist")
+    names_list = [row[0] for row in cursor]
+
+    return names_list
+
+def whitelist_check(names_list):
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    for item in names_list:
+        item.
+
+    cursor.execute()
 
 @client.on(events.NewMessage)
 async def handler(event):
@@ -72,7 +91,7 @@ async def handler(event):
     sender = await event.get_sender()
     id = sender.id
 
-    recieved_at = event.date
+    recieved_at = event.date.astimezone()
     format_code = "%d/%m/%Y %H:%M"
 
     parsed_date = recieved_at.strftime(format_code)
@@ -124,6 +143,7 @@ async def handler(event):
     await send_db(parsed_date, incoming, sender_full_name, id)
 
     print("Recorded.")
+
 
 def stop_listener(client, loop):
 

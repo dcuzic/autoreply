@@ -25,7 +25,7 @@ def create_table_whitelist():
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS whitelist (
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   username TEXT
+                   name
                    )""")
     
     conn.commit()

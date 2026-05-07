@@ -65,14 +65,14 @@ def set_whitelist():
     conn = db_conn()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT username FROM whitelist")
+    cursor.execute("SELECT name FROM whitelist")
     current_whitelist = cursor.fetchall()
 
     if not current_whitelist:
         whitelist = []
 
         while True:
-            user = input("Enter username (Press enter to stop):")
+            user = input("Enter name (Press enter to stop):")
 
             if user == "":
                 break
@@ -80,7 +80,7 @@ def set_whitelist():
             whitelist.append(user)
         
         for item in whitelist:
-            cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+            cursor.execute("INSERT INTO whitelist (name) VALUES (?)", (item,))
 
         conn.commit()
 
@@ -96,7 +96,7 @@ def set_whitelist():
             cursor.execute("DELETE FROM whitelist")
 
             while True:
-                user = input("Enter username (Press enter to stop):")
+                user = input("Enter name (Press enter to stop):")
 
                 if user == "":
                     break
@@ -104,7 +104,7 @@ def set_whitelist():
                 whitelist.append(user)
         
             for item in whitelist:
-                cursor.execute("INSERT INTO whitelist (username) VALUES (?)", (item,))
+                cursor.execute("INSERT INTO whitelist (name) VALUES (?)", (item,))
             
             conn.commit()
 
