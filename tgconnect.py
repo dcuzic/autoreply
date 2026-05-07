@@ -24,7 +24,7 @@ async def send_db(date, incoming, sender, sender_id):
     conn.commit()
     conn.close()
 
-async def clear_previous_incoming():
+def clear_previous_incoming():
     conn = db_conn()
     cursor = conn.cursor()
 
@@ -106,17 +106,11 @@ async def handler(event):
 
     print(parsed_date)
     print(sender.first_name, sender.last_name + ":", incoming)
-    print("Recording to the database...")
-    sender_full_name = sender.first_name + " " + sender.last_name
-
-    await send_db(parsed_date, incoming, sender_full_name, id)
-
-    print("Recorded.")
 
     if replied_today(id) == True:
+        print("Already replied, so not replying")
         pass
-
-    elif replied_today(id) == False:
+    if replied_today(id) == False:
         print("Replying...")
 
         response_result = response()
@@ -124,8 +118,12 @@ async def handler(event):
 
         print(f"Replied with: {response_result}")
 
-    else:
-        print("Error in def replied_today()")
+    print("Recording to the database...")
+    sender_full_name = sender.first_name + " " + sender.last_name
+
+    await send_db(parsed_date, incoming, sender_full_name, id)
+
+    print("Recorded.")
 
 def stop_listener(client, loop):
 
@@ -149,7 +147,7 @@ async def main():
     print("Client started")
 
     print("Clearing previous data...")
-    await clear_previous_incoming()
+    clear_previous_incoming()
     print("Cleared")
 
     me = await client.get_me()
