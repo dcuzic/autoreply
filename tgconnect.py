@@ -33,7 +33,7 @@ async def clear_previous_incoming():
     conn.commit()
     conn.close()
 
-async def response():
+def response():
     conn = db_conn()
     cursor = conn.cursor()
 
@@ -50,15 +50,20 @@ async def response():
     
     response_choice = random.choice(responses_list)
 
-    return [response_choice["message"]]
+    return response_choice["message"]
 
-async def replied_today():
+def replied_today(id):
     conn = db_conn()
     cursor = conn.cursor()
 
     cursor.execute("SELECT sender_id FROM incoming")
-    already_replied_id_list = cursor.fetchone()
-    print(already_replied_id_list)
+    already_replied_id_list = [
+        item[0] for item in cursor.fetchall()]
+
+    if id in already_replied_id_list:
+        return True
+    else:
+        return False
 
 
 @client.on(events.NewMessage)
@@ -108,15 +113,20 @@ async def handler(event):
 
     print("Recorded.")
 
-    print("Replying...")
+    if replied_today(id) == True:
+        pass
 
-    response_result = await response()
-    await event.reply(response_result)
+    elif replied_today(id) == False:
+        print("Replying...")
 
-    print(f"Replied with: {response_result}")
+        response_result = response()
+        await event.reply(response_result)
 
+        print(f"Replied with: {response_result}")
 
-    
+    else:
+        print("Error in def replied_today()")
+
 def stop_listener(client, loop):
 
     def on_press(key):
