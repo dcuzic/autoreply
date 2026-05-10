@@ -64,26 +64,18 @@ def replied_today(id):
         return True
     else:
         return False
+
+
+def whitelist_check(first_name, last_name):
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT 1 FROM whitelist WHERE name = ?", 
+                   (f"{first_name, last_name}",)
+                   )
     
-def names():
-    conn = db_conn()
-    cursor = conn.cursor()
+    return cursor.fetchone is not None
 
-    names_list = []
-
-    cursor.execute("SELECT name FROM whitelist")
-    names_list = [row[0] for row in cursor]
-
-    return names_list
-
-def whitelist_check(names_list):
-    conn = db_conn()
-    cursor = conn.cursor()
-
-    for item in names_list:
-        item.
-
-    cursor.execute()
 
 @client.on(events.NewMessage)
 async def handler(event):
@@ -129,13 +121,19 @@ async def handler(event):
     if replied_today(id) == True:
         print("Already replied, so not replying")
         pass
+
     if replied_today(id) == False:
-        print("Replying...")
 
-        response_result = response()
-        await event.reply(response_result)
+        if whitelist_check(sender.first_name, sender.last_name) == True:
 
-        print(f"Replied with: {response_result}")
+            print("Replying...")
+
+            response_result = response()
+            await event.reply(response_result)
+
+            print(f"Replied with: {response_result}")
+        else:
+            print("Person is not in whitelist, not replying.")
 
     print("Recording to the database...")
     sender_full_name = sender.first_name + " " + sender.last_name
