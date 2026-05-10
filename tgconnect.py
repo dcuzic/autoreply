@@ -71,10 +71,10 @@ def whitelist_check(first_name, last_name):
     cursor = conn.cursor()
 
     cursor.execute("SELECT 1 FROM whitelist WHERE name = ?", 
-                   (f"{first_name, last_name}",)
+                   (f"{first_name} {last_name}",)
                    )
     
-    return cursor.fetchone is not None
+    return cursor.fetchone() is not None
 
 
 @client.on(events.NewMessage)
@@ -118,13 +118,13 @@ async def handler(event):
     print(parsed_date)
     print(sender.first_name, sender.last_name + ":", incoming)
 
-    if replied_today(id) == True:
-        print("Already replied, so not replying")
-        pass
 
-    if replied_today(id) == False:
+    if whitelist_check(sender.first_name, sender.last_name) == True:
+        if replied_today(id) == True:
+            print("Already replied, so not replying")
+            pass
 
-        if whitelist_check(sender.first_name, sender.last_name) == True:
+        if replied_today(id) == False:
 
             print("Replying...")
 
@@ -132,8 +132,9 @@ async def handler(event):
             await event.reply(response_result)
 
             print(f"Replied with: {response_result}")
-        else:
-            print("Person is not in whitelist, not replying.")
+
+    else:
+        print("Person is not in whitelist, not replying.")
 
     print("Recording to the database...")
     sender_full_name = sender.first_name + " " + sender.last_name
