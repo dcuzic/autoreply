@@ -115,6 +115,58 @@ async def report_loop(stop_event):
             break
         await asyncio.sleep(1)
 
+
+# --- TIME INTERVALS LOGIC ---
+def convert_to_minutes(busy_from, busy_to):
+    busy_from_hours = int(busy_from.split(":")[0])
+    busy_from_min = int(busy_from.split(":")[1])
+
+    busy_to_hours = int(busy_to.split(":")[0])
+    busy_to_min = int(busy_to.split(":")[1])
+
+    busy_from_num = busy_from_hours * 60 + busy_from_min
+    
+    busy_to_num = busy_to_hours * 60 + busy_to_min
+
+    return busy_from_num, busy_to_num
+
+
+async def is_busy(stop_event):
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT busy_from FROM busy_intervals")
+    busy_from = cursor.fetchone()[0]
+
+    cursor.execute("SELECT busy_to FROM busy_intervals")
+    busy_to = cursor.fetchone()[0]
+
+    busy_from_num, busy_to_num = convert_to_minutes(busy_from, busy_to)
+    was_busy = False
+
+    while not stop_event.is_set():
+        current_time = datetime.now().strftime("%H:%M")
+
+        current_hours = int(current_time.split(":")[0])
+        current_minutes = int(current_time.split(":")[1])
+
+        current_time_num = current_hours * 60 + current_minutes
+
+        currently_busy = (busy_from_num <= current_time_num < busy_to_num)
+
+        if currently_busy and not was_busy:
+            print("\n --- BUSY TIME STARTED ---")
+        
+        if not currently_busy and was_busy:
+            print("\n --- BUSY TIME ENDED ---")
+
+            
+        was_busy = currently_busy
+
+        await asyncio.sleep(1)
+
+        
+
 @client.on(events.NewMessage)
 async def handler(event):
     
@@ -154,7 +206,7 @@ async def handler(event):
         incoming = "Unsupported or Empty message"
 
     print(parsed_date)
-    print(sender.first_name, sender.last_name + ":", incoming)
+    print(f"{sender.first_name} {sender.last_name or ''}: {incoming}")
 
 
     if whitelist_check(sender.first_name, sender.last_name) == True:
@@ -202,7 +254,11 @@ async def main():
     stop_event = asyncio.Event()
     stop_listener(client, loop, stop_event)
     asyncio.create_task(report_loop(stop_event))
+    asyncio.create_task(is_busy(stop_event))
 
-    await client.run_until_disconnected()
+    try:
+        await client.run_until_disconnected()
+    except asyncio.CancelledError:
+        print("Client disconnected")
 
 asyncio.run(main())
