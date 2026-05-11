@@ -1,6 +1,6 @@
 import os
 import asyncio
-import datetime
+from datetime import datetime
 import random
 from telethon import TelegramClient, events
 from pynput import keyboard
@@ -76,6 +76,44 @@ def whitelist_check(first_name, last_name):
     
     return cursor.fetchone() is not None
 
+def stop_listener(client, loop, stop_event):
+
+    def on_press(key):
+
+        try:
+            if key.char == "`":
+                print("Exiting...")
+                stop_event.set()
+                loop.call_soon_threadsafe(lambda: client.disconnect())
+                listener.stop()
+                return False
+        except AttributeError:
+            pass
+        
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+
+async def report_loop(stop_event):
+    conn = db_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT time FROM report_time")
+    report_time = cursor.fetchone()[0]
+
+    while not stop_event.is_set():
+        current_time = datetime.now().strftime("%H:%M")
+
+        if current_time == report_time:
+            print("\n --- REPORT --- ")
+
+            cursor.execute("SELECT * FROM incoming")
+            recieved_messsages = cursor.fetchall()
+
+            for item in recieved_messsages:
+                print(f"\n {dict(item)}")
+            
+            break
+        await asyncio.sleep(1)
 
 @client.on(events.NewMessage)
 async def handler(event):
@@ -144,21 +182,6 @@ async def handler(event):
     print("Recorded.")
 
 
-def stop_listener(client, loop):
-
-    def on_press(key):
-
-        try:
-            if key.char == "`":
-                print("Exiting...")
-                loop.call_soon_threadsafe(lambda: client.disconnect())
-                listener.stop()
-                return False
-        except AttributeError:
-            pass
-        
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()
 
 async def main():
     await client.start()
@@ -175,7 +198,10 @@ async def main():
     print("Client running ...")
 
     print('Press "`" to exit')
-    stop_listener(client, loop)
+
+    stop_event = asyncio.Event()
+    stop_listener(client, loop, stop_event)
+    asyncio.create_task(report_loop(stop_event))
 
     await client.run_until_disconnected()
 
