@@ -261,4 +261,5 @@ async def main():
     except asyncio.CancelledError:
         print("Client disconnected")
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

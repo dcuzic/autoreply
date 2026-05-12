@@ -1,8 +1,9 @@
 import datetime
 from pathlib import Path
 import sqlite3
+import asyncio
 from database import db_conn, create_table_busy_intervals, create_table_whitelist, create_table_report_time, create_table_messages, create_table_incoming
-
+import tgconnect
 # BLOCK A
 
 # creating tables
@@ -214,4 +215,4 @@ set_report_time()
 set_message()
 
 
-
+asyncio.run(tgconnect.main())
