@@ -7,6 +7,7 @@ from pynput import keyboard
 from dotenv import load_dotenv
 from database import db_conn
 
+currently_busy = False
 
 load_dotenv()
 
@@ -82,7 +83,7 @@ def stop_listener(client, loop, stop_event):
 
         try:
             if key.char == "`":
-                print("Exiting...")
+                print("\nExiting...")
                 stop_event.set()
                 loop.call_soon_threadsafe(lambda: client.disconnect())
                 listener.stop()
@@ -92,29 +93,6 @@ def stop_listener(client, loop, stop_event):
         
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
-
-async def report_loop(stop_event):
-    conn = db_conn()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT time FROM report_time")
-    report_time = cursor.fetchone()[0]
-
-    while not stop_event.is_set():
-        current_time = datetime.now().strftime("%H:%M")
-
-        if current_time == report_time:
-            print("\n --- REPORT --- ")
-
-            cursor.execute("SELECT * FROM incoming")
-            recieved_messsages = cursor.fetchall()
-
-            for item in recieved_messsages:
-                print(f"\n {dict(item)}")
-            
-            break
-        await asyncio.sleep(1)
-
 
 # --- TIME INTERVALS LOGIC ---
 def convert_to_minutes(busy_from, busy_to):
@@ -131,43 +109,50 @@ def convert_to_minutes(busy_from, busy_to):
     return busy_from_num, busy_to_num
 
 
-async def is_busy(stop_event):
-
+async def main_loop(stop_event):
     global currently_busy
 
     conn = db_conn()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT busy_from FROM busy_intervals")
-    busy_from = cursor.fetchone()[0]
+    cursor.execute("SELECT busy_from, busy_to FROM busy_intervals WHERE id = 1")
+    row = cursor.fetchone()
 
-    cursor.execute("SELECT busy_to FROM busy_intervals")
-    busy_to = cursor.fetchone()[0]
-
+    busy_from, busy_to = row[0], row[1]
     busy_from_num, busy_to_num = convert_to_minutes(busy_from, busy_to)
-    was_busy = False
+
+    cursor.execute("SELECT time FROM report_time")
+    report_time = cursor.fetchone()[0]
 
     while not stop_event.is_set():
         current_time = datetime.now().strftime("%H:%M")
-
         current_hours = int(current_time.split(":")[0])
         current_minutes = int(current_time.split(":")[1])
-
         current_time_num = current_hours * 60 + current_minutes
 
+        was_busy = currently_busy
         currently_busy = (busy_from_num <= current_time_num < busy_to_num)
 
         if currently_busy and not was_busy:
             print("\n --- BUSY TIME STARTED ---")
-        
+
         if not currently_busy and was_busy:
             print("\n --- BUSY TIME ENDED ---")
+
+        if current_time == report_time:
+            print("\n --- REPORT ---")
+
+            cursor.execute("SELECT date, sender, incoming_message FROM incoming")
+            recieved_messages = cursor.fetchall()
+
+            for item in recieved_messages:
+                print(f"\n {dict(item)}")
             
-        was_busy = currently_busy
+            break
 
         await asyncio.sleep(1)
 
-        
+
 
 
 @client.on(events.NewMessage)
@@ -213,7 +198,7 @@ async def handler(event):
         else:
             incoming = "Unsupported or Empty message"
 
-        print(parsed_date)
+        print(f"\n {parsed_date}")
         print(f"{sender.first_name} {sender.last_name or ''}: {incoming}")
 
 
@@ -246,23 +231,22 @@ async def handler(event):
 async def main():
     await client.start()
     loop = asyncio.get_running_loop()
-    print("Client started")
+    print("\nClient started")
 
-    print("Clearing previous data...")
+    print("\nClearing previous data...")
     clear_previous_incoming()
     print("Cleared")
 
     me = await client.get_me()
-    print(f"Username:{me.username}, ID: {me.id}")
+    print(f"\nUsername:{me.username}, ID: {me.id}")
 
-    print("Client running ...")
+    print("\nClient running ...")
 
     print('Press "`" to exit')
 
     stop_event = asyncio.Event()
     stop_listener(client, loop, stop_event)
-    asyncio.create_task(report_loop(stop_event))
-    asyncio.create_task(is_busy(stop_event))
+    asyncio.create_task(main_loop(stop_event))
 
     try:
         await client.run_until_disconnected()
