@@ -25,7 +25,7 @@ def change_busy_intervals(busy_from, busy_to):
 
     return busy_from, busy_to
 
-# wip
+
 def set_busy_intervals():
     conn = db_conn()
     cursor = conn.cursor()

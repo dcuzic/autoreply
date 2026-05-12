@@ -132,6 +132,9 @@ def convert_to_minutes(busy_from, busy_to):
 
 
 async def is_busy(stop_event):
+
+    global currently_busy
+
     conn = db_conn()
     cursor = conn.cursor()
 
@@ -159,7 +162,6 @@ async def is_busy(stop_event):
         
         if not currently_busy and was_busy:
             print("\n --- BUSY TIME ENDED ---")
-
             
         was_busy = currently_busy
 
@@ -167,71 +169,77 @@ async def is_busy(stop_event):
 
         
 
+
 @client.on(events.NewMessage)
 async def handler(event):
+
+    if not currently_busy:
+        return
     
-    sender = await event.get_sender()
-    id = sender.id
+    else:
 
-    recieved_at = event.date.astimezone()
-    format_code = "%d/%m/%Y %H:%M"
+        sender = await event.get_sender()
+        id = sender.id
 
-    parsed_date = recieved_at.strftime(format_code)
+        recieved_at = event.date.astimezone()
+        format_code = "%d/%m/%Y %H:%M"
 
-    if event.raw_text:
-        incoming = event.raw_text
+        parsed_date = recieved_at.strftime(format_code)
 
-    elif event.voice:
-        incoming = "🎤 Voice message"
+        if event.raw_text:
+            incoming = event.raw_text
 
-    elif event.video_note:
-        incoming = "📸 Video message"
+        elif event.voice:
+            incoming = "🎤 Voice message"
 
-    elif event.video:
-        incoming = "📸 Video"
+        elif event.video_note:
+            incoming = "📸 Video message"
+
+        elif event.video:
+            incoming = "📸 Video"
+            
+        elif event.photo:
+            incoming = "🖼️ Photo"
+
+        elif event.geo:
+            incoming = "📌 Location"
+
+        elif event.sticker:
+            incoming = "Sticker"
         
-    elif event.photo:
-        incoming = "🖼️ Photo"
+        elif event.document:
+            incoming = f"📄 {event.file.name}"
 
-    elif event.geo:
-        incoming = "📌 Location"
+        else:
+            incoming = "Unsupported or Empty message"
 
-    elif event.sticker:
-        incoming = "Sticker"
-    
-    elif event.document:
-        incoming = f"📄 {event.file.name}"
-
-    else:
-        incoming = "Unsupported or Empty message"
-
-    print(parsed_date)
-    print(f"{sender.first_name} {sender.last_name or ''}: {incoming}")
+        print(parsed_date)
+        print(f"{sender.first_name} {sender.last_name or ''}: {incoming}")
 
 
-    if whitelist_check(sender.first_name, sender.last_name) == True:
-        if replied_today(id) == True:
-            print("Already replied, so not replying")
-            pass
+        if whitelist_check(sender.first_name, sender.last_name) == True:
+            if replied_today(id) == True:
+                print("Already replied, so not replying")
+                pass
 
-        if replied_today(id) == False:
+            if replied_today(id) == False:
 
-            print("Replying...")
+                print("Replying...")
 
-            response_result = response()
-            await event.reply(response_result)
+                response_result = response()
+                await event.reply(response_result)
 
-            print(f"Replied with: {response_result}")
+                print(f"Replied with: {response_result}")
 
-    else:
-        print("Person is not in whitelist, not replying.")
+        else:
+            print("Person is not in whitelist, not replying.")
 
-    print("Recording to the database...")
-    sender_full_name = sender.first_name + " " + sender.last_name
+        print("Recording to the database...")
+        sender_full_name = sender.first_name + " " + sender.last_name
 
-    await send_db(parsed_date, incoming, sender_full_name, id)
+        await send_db(parsed_date, incoming, sender_full_name, id)
 
-    print("Recorded.")
+        print("Recorded.")
 
 
 
