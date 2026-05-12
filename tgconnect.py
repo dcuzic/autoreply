@@ -2,13 +2,34 @@ import os
 import asyncio
 from datetime import datetime
 import random
+from pathlib import Path
 from telethon import TelegramClient, events
 from pynput import keyboard
 from dotenv import load_dotenv
 from database import db_conn
 
+def setup_env():
+    env_path = Path(".env")
+
+    if env_path.exists():
+        with open(env_path) as f:
+            content = f.read()
+        if "API_ID" and "API_HASH" in content:
+            return
+        
+    print("\n--- First time setup ---")
+    api_id = input("Enter your Telegram API ID: ").strip()
+    api_hash = input("Enter your Telegram API Hash: ").strip()
+
+    with open(env_path, "w") as f:
+        f.write(f"API_ID={api_id}\n")
+        f.write(f"API_HASH={api_hash}\n")
+
+    print("Saved to .env successfully!\n")
+
 currently_busy = False
 
+setup_env()
 load_dotenv()
 
 api_id = int(os.getenv("API_ID"))
