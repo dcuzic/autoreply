@@ -152,7 +152,11 @@ async def main_loop(stop_event):
         current_time_num = current_hours * 60 + current_minutes
 
         was_busy = currently_busy
-        currently_busy = (busy_from_num <= current_time_num < busy_to_num)
+
+        if busy_from_num <= busy_to_num:
+            currently_busy = (busy_from_num <= current_time_num < busy_to_num)
+        else:
+            currently_busy = (current_time_num >= busy_from_num or current_time < busy_to)
 
         if currently_busy and not was_busy:
             print("\n --- BUSY TIME STARTED ---")
