@@ -13,6 +13,13 @@ create_table_report_time()
 create_table_messages()
 create_table_incoming()
 
+def validate_time(time_str):
+    try:
+        datetime.datetime.strptime(time_str, "%H:%M")
+        return True
+    except ValueError:
+        return False
+
 def change_busy_intervals(busy_from, busy_to):
     conn = db_conn()
     cursor = conn.cursor()
@@ -131,7 +138,7 @@ def set_report_time():
     current_report_time = cursor.fetchone()
 
     if not current_report_time:
-        time = input("\nChoose report time (xx:xx)")
+        time = input("\nChoose report time (xx:xx)").strip()
 
         cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
 
@@ -148,7 +155,13 @@ def set_report_time():
         if change_report_time == "y":
             cursor.execute("DELETE FROM report_time")
 
-            time = input("Choose report time (xx:xx)")
+            time = input("Choose report time (xx:xx)").strip()
+
+            if not validate_time(time):
+                cursor.execute("SELECT busy_to FROM busy_intervals")
+                time = cursor.fetchone()[0]
+                
+                print("Wrong format input, report time has been set to the end of busy interval.")
 
             cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
             conn.commit()
