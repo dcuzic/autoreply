@@ -168,12 +168,16 @@ def set_message():
             response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
 
             if response_in == "":
-                break
+                if len(responses_list) < 3:
+                    print("You need to enter at least 3 resonses to proceed")
+                    pass
+                else:
+                    break
+            if response_in.strip():
+                responses_list.append(response_in)
 
-            responses_list.append(response_in)
-
-            for item in responses_list:
-                cursor.execute("INSERT INTO messages (message) VALUES (?)", (item,))
+        for item in responses_list:
+            cursor.execute("INSERT INTO messages (message) VALUES (?)", (item,))
 
         conn.commit()
         conn.close()
@@ -195,9 +199,13 @@ def set_message():
                 response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
 
                 if response_in == "":
-                    break
-
-                responses_list.append(response_in)
+                    if len(responses_list) < 3:
+                        print("You need to enter at least 3 resonses to proceed")
+                        pass
+                    else:
+                        break
+                if response_in.strip():
+                    responses_list.append(response_in)
 
             for item in responses_list:
                 cursor.execute("INSERT INTO messages (message) VALUES (?)", (item,))
