@@ -59,20 +59,14 @@ def response():
     conn = db_conn()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM messages WHERE message_id = 1")
-    response1 = cursor.fetchone()
+    cursor.execute("SELECT message FROM messages")
+    result = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM messages WHERE message_id = 2")
-    response2 = cursor.fetchone()    
-
-    cursor.execute("SELECT * FROM messages WHERE message_id = 3")
-    response3 = cursor.fetchone()
-
-    responses_list = [response1, response2, response3]
+    responses_list = [row["message"] for row in result]
     
     response_choice = random.choice(responses_list)
 
-    return response_choice["message"]
+    return response_choice
 
 def replied_today(id):
     conn = db_conn()
@@ -178,8 +172,6 @@ async def main_loop(stop_event):
         await asyncio.sleep(1)
 
 
-
-
 @client.on(events.NewMessage)
 async def handler(event):
 
@@ -187,7 +179,6 @@ async def handler(event):
         return
     
     else:
-
         sender = await event.get_sender()
         id = sender.id
 

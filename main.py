@@ -162,22 +162,22 @@ def set_message():
     current_responses = cursor.fetchall()
 
     if not current_responses:
-        print("\nEnter 3 responses to the incoming messages")
+        responses_list = []
 
-        response1 = input("Response 1:")
-        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response1,))
+        while True:
+            response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
 
-        response2 = input("Response 2:")
-        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response2,))
+            if response_in == "":
+                break
 
-        response3 = input("Response 3:")
-        cursor.execute("INSERT INTO messages (message) VALUES (?)", (response3,))
-    
+            responses_list.append(response_in)
+
+            for item in responses_list:
+                cursor.execute("INSERT INTO messages (message) VALUES (?)", (item,))
+
         conn.commit()
         conn.close()
 
-        print(f"Your current responses have been set to \n{response1} \n{response2} \n{response3}")
-        return 
     else:
         print('\nYour current responses are:')
         for item in current_responses:
@@ -189,16 +189,18 @@ def set_message():
             cursor.execute("DELETE FROM messages")
             cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'messages'")
 
-            print("Enter 3 responses to the incoming messages")
+            responses_list = []
 
-            response1 = input("Response 1:")
-            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response1,))
+            while True:
+                response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
 
-            response2 = input("Response 2:")
-            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response2,))
+                if response_in == "":
+                    break
 
-            response3 = input("Response 3:")
-            cursor.execute("INSERT INTO messages (message) VALUES (?)", (response3,))
+                responses_list.append(response_in)
+
+            for item in responses_list:
+                cursor.execute("INSERT INTO messages (message) VALUES (?)", (item,))
 
             conn.commit()
 
