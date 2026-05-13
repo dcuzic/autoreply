@@ -69,7 +69,7 @@ def set_busy_intervals():
         print("Your current busy intervals are:")
         for row in current_intervals:
             print(dict(row))
-        change_current_intervals = input("Would you like to change current intervals?(y for yes, n for no)")
+        change_current_intervals = input("Would you like to change current intervals?(y for yes, n for no)").strip()
 
         if change_current_intervals == "y":
             while True:
@@ -111,7 +111,7 @@ def set_whitelist():
         whitelist = []
 
         while True:
-            user = input("Enter name to add to whitelist (Press enter to stop):")
+            user = input("Enter name to add to whitelist (Press enter to stop):").strip()
 
             if user == "":
                 break
@@ -133,7 +133,7 @@ def set_whitelist():
         print("\nYour current whitelist:")
         for row in current_whitelist:
             print(dict(row))
-        change_current_whitelist = input("Would you like to change current whitelist?(y for yes, n for no)")
+        change_current_whitelist = input("Would you like to change current whitelist?(y for yes, n for no)").strip()
 
         if change_current_whitelist == "y":
             whitelist = []
@@ -141,7 +141,7 @@ def set_whitelist():
             cursor.execute("DELETE FROM whitelist")
 
             while True:
-                user = input("Enter name to add to whitelist (Press enter to stop):")
+                user = input("Enter name to add to whitelist (Press enter to stop):").strip()
 
                 if user == "":
                     break
@@ -188,7 +188,7 @@ def set_report_time():
 
     else:
         print(f"\nYour current report time is {current_report_time[0]}")
-        change_report_time = input("Do you want to change it? (y for yes, n for no)")
+        change_report_time = input("Do you want to change it? (y for yes, n for no)").strip()
 
         if change_report_time == "y":
             cursor.execute("DELETE FROM report_time")
@@ -222,7 +222,7 @@ def set_message():
         responses_list = []
 
         while True:
-            response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
+            response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ").strip()
 
             if response_in == "":
                 if len(responses_list) < 3:
@@ -244,7 +244,7 @@ def set_message():
         for item in current_responses:
             print(dict(item))
 
-        change_message = input("Do you want to change them? (y for yes, n for no)")
+        change_message = input("Do you want to change them? (y for yes, n for no)").strip()
 
         if change_message == "y":
             cursor.execute("DELETE FROM messages")
@@ -253,7 +253,7 @@ def set_message():
             responses_list = []
 
             while True:
-                response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ")
+                response_in = input("Enter at least 3 responses to incoming messages (Press Enter to stop): ").strip()
 
                 if response_in == "":
                     if len(responses_list) < 3:
