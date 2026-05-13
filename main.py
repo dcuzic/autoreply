@@ -74,7 +74,7 @@ def set_whitelist():
         whitelist = []
 
         while True:
-            user = input("Enter name (Press enter to stop):")
+            user = input("Enter name to add to whitelist (Press enter to stop):")
 
             if user == "":
                 break
@@ -85,6 +85,12 @@ def set_whitelist():
             cursor.execute("INSERT INTO whitelist (name) VALUES (?)", (item,))
 
         conn.commit()
+
+        cursor.execute("SELECT name FROM whitelist")
+        result = cursor.fetchall()
+        print("Users currently in whitelist:")
+        for u in result:
+            print(dict(u))
 
     else:
         print("\nYour current whitelist:")
@@ -98,7 +104,7 @@ def set_whitelist():
             cursor.execute("DELETE FROM whitelist")
 
             while True:
-                user = input("Enter name (Press enter to stop):")
+                user = input("Enter name to add to whitelist (Press enter to stop):")
 
                 if user == "":
                     break
