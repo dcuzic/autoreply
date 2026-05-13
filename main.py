@@ -140,12 +140,20 @@ def set_report_time():
     if not current_report_time:
         time = input("\nChoose report time (xx:xx)").strip()
 
+        if not validate_time(time):
+            cursor.execute("SELECT busy_to FROM busy_intervals")
+            time = cursor.fetchone()[0]
+            
+            print("Wrong format input, report time has been set to the end of busy interval.")
+
         cursor.execute("INSERT INTO report_time (time) VALUES (?)", (time,))
-
         conn.commit()
-        conn.close()
 
-        print(f"Report time has been set to {time}")
+        cursor.execute("SELECT * FROM report_time")
+        result = cursor.fetchone()
+
+        print(f"Your current report time has been set to {result[0]}")
+
         return 
 
     else:
