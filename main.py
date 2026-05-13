@@ -41,8 +41,23 @@ def set_busy_intervals():
     current_intervals = cursor.fetchall()
 
     if not current_intervals:
-        busy_from = input("From what time are you busy? (xx:xx)")
-        busy_to = input("Until what time are you busy? (xx:xx)")
+        while True:
+            busy_from = input("From what time are you busy? (xx:xx)").strip()
+
+            if not validate_time(busy_from):
+                print("Invalid format, please input it in xx:xx format!")
+                pass
+            else:
+                break
+            
+        while True:
+            busy_to = input("Until what time are you busy? (xx:xx)").strip()
+
+            if not validate_time(busy_to):
+                print("Invalid format, please input it in xx:xx format!")
+                pass
+            else:
+                break
 
         cursor.execute("INSERT INTO busy_intervals (busy_from, busy_to) VALUES (?, ?)", (busy_from, busy_to))
         conn.commit()
@@ -57,8 +72,23 @@ def set_busy_intervals():
         change_current_intervals = input("Would you like to change current intervals?(y for yes, n for no)")
 
         if change_current_intervals == "y":
-            busy_from = input("\nFrom what time are you busy? (xx:xx)")
-            busy_to = input("Until what time are you busy? (xx:xx)")
+            while True:
+                busy_from = input("From what time are you busy? (xx:xx)").strip()
+
+                if not validate_time(busy_from):
+                    print("Invalid format, please input it in xx:xx format!")
+                    pass
+                else:
+                    break
+                
+            while True:
+                busy_to = input("Until what time are you busy? (xx:xx)").strip()
+
+                if not validate_time(busy_to):
+                    print("Invalid format, please input it in xx:xx format!")
+                    pass
+                else:
+                    break
 
             change_busy_intervals(busy_from, busy_to)
 
