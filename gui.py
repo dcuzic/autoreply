@@ -18,7 +18,7 @@ status_frame.grid(row=0, column=0, columnspan=2, padx=25, pady=35)
 
 # status text
 status_text_stopped_primary = ctk.CTkLabel(status_frame, text="Stopped", font=ctk.CTkFont(family="SF Pro Display", size=28))
-status_text_stopped_primary.grid(row=0, column=0, padx=175, pady=115)
+status_text_stopped_primary.grid(row=0, column=0, padx=175, pady=100)
 
 start_btn = ctk.CTkButton(app,
                                                     width=350, 
